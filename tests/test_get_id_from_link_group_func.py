@@ -1,5 +1,6 @@
-from vk_sender import get_id_from_link_group
 import pytest
+
+from vk_sender import get_id_from_link_group
 
 
 @pytest.mark.parametrize('url, response', [('https://vk.com/animalhelp_belarus', '2356436'),
@@ -18,6 +19,11 @@ def test_type_error():
         assert get_id_from_link_group([1234])[0]['group_id']
 
 
-#
-def test_invalid_links():
-    assert get_id_from_link_group('12334') == []
+@pytest.mark.parametrize('url', ['1234',
+                                 '1',
+                                 '012987',
+                                 '12342134',
+                                 '00000'])
+def test_invalid_links(url):
+    assert get_id_from_link_group([url]) == []
+
