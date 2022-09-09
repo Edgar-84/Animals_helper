@@ -63,10 +63,13 @@ def get_id_from_link_group(data_links: list) -> list:
     """Get group_id from his url"""
 
     result_id = []
-    for url in data_links: #TODO отловить неправильные URL
-        result_id.append({'url': url,
-                          'group_id': str(session.method('utils.resolveScreenName',
-                                                         {'screen_name': url.split('/')[-1]})['object_id'])})
+    for url in data_links:
+        response = session.method('utils.resolveScreenName',
+                                  {'screen_name': str(url.split('/')[-1])})
+        if len(response) == 0:
+            continue
+        else:
+            result_id.append({'url': url, 'group_id': str(response['object_id'])})
 
     return result_id
 
@@ -92,5 +95,5 @@ def main(all_groups_id: list):
     logger.info(f"{'#' * 15} Finish, отправлено {count_successful} записей из {len(all_groups_id)} {'#' * 15}")
 
 
-all_groups_id = get_id_from_link_group(data.all_animals_groups)
-main(all_groups_id)
+# all_groups_id = get_id_from_link_group(data.all_animals_groups)
+# main(all_groups_id)

@@ -34,14 +34,8 @@ def benchmark(func):
 load_dotenv()
 token = os.getenv("TOKEN")
 
-
-message = """Снаружи серьезный брутал,а внутри сладкий пирожочек...
-        Тигрик реально пластилиновый кот,который хочет обнимашки и вкусно 
-        покушать,а не это вот всё. Короче отличный компаньон для прокрастинации.
-         Минск. 80291911096 @zooshans_by
-        #кошкавдар #кошкавдарминск #кошкабесплатно #вдобрыеруки #непокупай #ищухозяина #ищудом"""
+message = os.getenv('MESSAGE')
 
 all_animals_groups = all_animals_groups
-
 
 data = Data(token, message, all_animals_groups)
