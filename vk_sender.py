@@ -1,15 +1,13 @@
+import glob
 import json
-import time
 import random
+import time
 
 import requests
 import vk_api
-import glob
 
-from pprint import pprint
 from logger_settings import logger
 from settings import data, benchmark
-
 
 session = vk_api.VkApi(token=data.token)
 api = session.get_api()
@@ -24,8 +22,7 @@ def get_url_photo_download(group_id: str) -> str:
 
 
 def create_image_object(image_path: str) -> dict:
-    image_object = {'photo': ('img.jpg', open(image_path, 'rb'))}
-    return image_object
+    return {'photo': ('img.jpg', open(image_path, 'rb'))}
 
 
 def post_message_group(group_id: int, text: str) -> dict:
@@ -76,7 +73,6 @@ def get_id_from_link_group(data_links: list) -> list:
 
 @benchmark
 def main(all_groups_id: list):
-
     logger.info(f"{'#' * 15}  Start posting {'#' * 15}")
     count_successful = 0
     logger.info(f"Download {len(all_groups_id)} groups")
@@ -90,10 +86,9 @@ def main(all_groups_id: list):
                 time.sleep(random.randint(65, 90))
         else:
             logger.warning(f"#{key + 1} Запись не опубликовалась в группе: {group_id['url']}"
-                        f" по причине: {result['error']['error_msg']}")
+                           f" по причине: {result['error']['error_msg']}")
 
     logger.info(f"{'#' * 15} Finish, отправлено {count_successful} записей из {len(all_groups_id)} {'#' * 15}")
-
 
 # all_groups_id = get_id_from_link_group(data.all_animals_groups)
 # main(all_groups_id)

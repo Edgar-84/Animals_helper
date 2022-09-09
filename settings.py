@@ -1,11 +1,12 @@
+import functools
 import os
 import time
-import functools
+from dataclasses import dataclass
 
 from dotenv import load_dotenv
-from dataclasses import dataclass
-from logger_settings import logger
+
 from groups_links import all_animals_groups
+from logger_settings import logger
 
 
 @dataclass
@@ -23,12 +24,23 @@ def benchmark(func):
         start_time = time.perf_counter()
         value = func(*args, **kwargs)
         end_time = time.perf_counter()
-        run_time = end_time - start_time
-        fin_time = round(run_time, 3)
+        run_time = int(end_time - start_time)
         logger.info(f"Finished {func.__name__!r} after this time - "
-                    f"{int(fin_time // 3600)}:{int(fin_time // 60)}:{int(fin_time % 60)}")
+                    f"{get_time_work(run_time)}")
         return value
+
     return wrapper_timer
+
+
+def get_time_work(sec: int):
+    hours = sec // 3600
+    if hours > 0:
+        minute = (sec // 60) - (hours * 60)
+    else:
+        minute = sec // 60
+        seconds = sec % 60
+
+    return f"{hours}:{minute}:{seconds}"
 
 
 load_dotenv()
