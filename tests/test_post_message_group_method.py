@@ -1,4 +1,5 @@
 import pytest
+
 from settings import data
 from vk_sender import VkRobot
 

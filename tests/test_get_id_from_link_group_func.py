@@ -1,6 +1,9 @@
 import pytest
 
-from vk_sender import get_id_from_link_group
+from settings import data
+from vk_sender import VkRobot
+
+test_vk_robot = VkRobot(data.token, data.message)
 
 
 @pytest.mark.parametrize('url, response', [('https://vk.com/animalhelp_belarus', '2356436'),
@@ -11,12 +14,12 @@ from vk_sender import get_id_from_link_group
                                            ('https://vk.com/daylapudrug', '35147837'),
                                            ('https://vk.com/public59076676', '59076676')])
 def test_get_id_from_link_group_good(url, response):
-    assert get_id_from_link_group([url])[0]['group_id'] == response
+    assert test_vk_robot.get_id_from_link_group([url])[0]['group_id'] == response
 
 
 def test_type_error():
     with pytest.raises(AttributeError):
-        assert get_id_from_link_group([1234])[0]['group_id']
+        assert test_vk_robot.get_id_from_link_group([1234])[0]['group_id']
 
 
 @pytest.mark.parametrize('url', ['1234',
@@ -25,5 +28,4 @@ def test_type_error():
                                  '12342134',
                                  '00000'])
 def test_invalid_links(url):
-    assert get_id_from_link_group([url]) == []
-
+    assert test_vk_robot.get_id_from_link_group([url]) == []

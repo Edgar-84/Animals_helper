@@ -38,7 +38,7 @@ def get_time_work(sec: int):
         minute = (sec // 60) - (hours * 60)
     else:
         minute = sec // 60
-        seconds = sec % 60
+    seconds = sec % 60
 
     return f"{hours}:{minute}:{seconds}"
 
