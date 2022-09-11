@@ -1,6 +1,8 @@
 import pytest
+from settings import data
+from vk_sender import VkRobot
 
-from vk_sender import post_message_group
+test_vk_robot = VkRobot(data.token, data.message)
 
 
 @pytest.mark.parametrize('group_id, message', [('1', 'Hello'),
@@ -9,4 +11,4 @@ from vk_sender import post_message_group
                                                ('path', ''),
                                                ('', '')])
 def test_post_message_group_error(group_id, message):
-    assert 'error' in post_message_group(group_id, message)
+    assert 'error' in test_vk_robot.post_message_group(group_id, message)
