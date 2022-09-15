@@ -1,6 +1,7 @@
 import glob
 import json
 
+from datetime import datetime, date
 import requests
 import vk_api
 
@@ -78,17 +79,36 @@ class VkRobot:
 
         return result_id
 
-    def search_groups(self, name_group: str, country_id: int, city_id: int, count: int = 100):
-
+    def search_groups(self, name_group: str, country_id: int, city_id: int) -> list[dict]:
+        """Search groups and append in list"""
         result_group = []
         response = self.session.method('groups.search',
                                        {'q': name_group,
+                                        'type': 'group',
                                         'country_id': country_id,
-                                        'city_id': city_id,
+                                        'city_id': city_id})
+        logger.info(f"Find {response['count']} records for search name {name_group}")
+        for page in response['items']:
+            result_group.append({
+                'url': 'https://vk.com/' + page['screen_name'],
+                'id': page['id'],
+                'name': page['name']})
+
+        return result_group
+
+    def check_posts_in_group(self, group_id: int, count: int = 3) -> bool:
+        """Check how long ago post was written"""
+
+        response = self.session.method('wall.get',
+                                       {'owner_id': '-' + str(group_id),
                                         'count': count})
-        pprint(response)
-        print(len(response[1]))
 
+        time_post = datetime.fromtimestamp(response['items'][2]['date'])
+        now_time = datetime.now()
+        today = date(now_time.year, now_time.month, now_time.day)
+        second = date(time_post.year, time_post.month, time_post.day)
+        result_time = today - second
 
-robot = VkRobot(data.token)
-robot.search_groups('помощь собакам', 3, 282, 100)
+        if result_time.days < 30:
+            return True
+        return False
