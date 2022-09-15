@@ -7,13 +7,13 @@ from vk_sender import VkRobot
 
 
 @benchmark
-def start_vk_sender(token: str, message: str, groups_links: list):
+def start_vk_sender(token: str, message: str, all_groups_id: tuple):
     """Sending messages in vk groups"""
 
+    logger.info(f"{'#' * 15}  Start program {'#' * 15}")
     robot = VkRobot(token, message)
-    all_groups_id = robot.get_id_from_link_group(groups_links)
+    logger.info('Prepare group_id for posting...')
 
-    logger.info(f"{'#' * 15}  Start posting {'#' * 15}")
     count_successful = 0
     logger.info(f"Download {len(all_groups_id)} groups")
 
@@ -34,4 +34,4 @@ def start_vk_sender(token: str, message: str, groups_links: list):
 
 
 if __name__ == "__main__":
-    start_vk_sender(data.token, data.message, data.all_animals_groups)
+    start_vk_sender(data.token, data.message, data.all_animals_groups_id)

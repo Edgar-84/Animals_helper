@@ -5,13 +5,15 @@ import requests
 import vk_api
 
 from logger_settings import logger
+from settings import data
+from pprint import pprint
 
 
 class VkRobot:
     """Work with this class for authorization in VkApi and
     create client for sending messages in groups with image"""
 
-    def __init__(self, token: str, message: str):
+    def __init__(self, token: str, message: str = None):
 
         self.__token = token
         self.session = vk_api.VkApi(token=token)
@@ -75,3 +77,18 @@ class VkRobot:
                 result_id.append({'url': url, 'group_id': str(response['object_id'])})
 
         return result_id
+
+    def search_groups(self, name_group: str, country_id: int, city_id: int, count: int = 100):
+
+        result_group = []
+        response = self.session.method('groups.search',
+                                       {'q': name_group,
+                                        'country_id': country_id,
+                                        'city_id': city_id,
+                                        'count': count})
+        pprint(response)
+        print(len(response[1]))
+
+
+robot = VkRobot(data.token)
+robot.search_groups('помощь собакам', 3, 282, 100)
