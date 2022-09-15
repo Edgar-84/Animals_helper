@@ -111,4 +111,6 @@ class VkRobot:
 
         if result_time.days < 30:
             return True
+
         return False
+        
