@@ -103,7 +103,11 @@ class VkRobot:
                                        {'owner_id': '-' + str(group_id),
                                         'count': count})
 
-        time_post = datetime.fromtimestamp(response['items'][2]['date'])
+        try:
+            time_post = datetime.fromtimestamp(response['items'][3]['date'])
+        except IndexError:
+            time_post = datetime.fromtimestamp(response['items'][0]['date'])
+
         now_time = datetime.now()
         today = date(now_time.year, now_time.month, now_time.day)
         second = date(time_post.year, time_post.month, time_post.day)
@@ -126,10 +130,31 @@ class VkRobot:
 
         logger.info(f"After filtering get {len(result)} groups")
 
-        if record:
+        if record and len(result):
             dt = datetime.now()
             with open(f'new_lists_group{dt.year}_{dt.month}_{dt.day}_{dt.hour}:{dt.minute}:{dt.second}', 'w') as file:
                 for row in result:
                     file.write(f"'{row['url']}'," + "\n")
+
+        return result
+
+    @staticmethod
+    def get_filter_list(check_list: list, black_list: dict, show: bool = True) -> list:
+        """Delete dublicates and filter check_list
+         with items in black_list"""
+        
+        logger.info(f'Get {len(check_list)} for start')
+        check_list = set(check_list)
+        check_list = list(check_list)
+        logger.info(f"After delete dublicates get {len(check_list)} records")
+        result = []
+
+        for url in check_list:
+            if black_list.get(url) is None:
+                result.append(url)
+
+        logger.info(f'Finish filter, get {len(result)} links')    
+        if show:
+            pprint(result)
 
         return result
