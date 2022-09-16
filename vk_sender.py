@@ -113,4 +113,23 @@ class VkRobot:
             return True
 
         return False
-        
+
+    def get_active_groups(self, groups: list, record: bool = False) -> list:
+        """Filter groups for get active"""
+
+        result = []
+        logger.info(f"Filtering {len(groups)}...")
+
+        for group in groups:
+            if self.check_posts_in_group(group['id']):
+                result.append(group)
+
+        logger.info(f"After filtering get {len(result)} groups")
+
+        if record:
+            dt = datetime.now()
+            with open(f'new_lists_group{dt.year}_{dt.month}_{dt.day}_{dt.hour}:{dt.minute}:{dt.second}', 'w') as file:
+                for row in result:
+                    file.write(f"'{row['url']}'," + "\n")
+
+        return result
