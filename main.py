@@ -1,37 +1,45 @@
-import random
-import time
-
 from logger_settings import logger
 from settings import data, benchmark
-from vk_sender import VkRobot
+from vk_sender import VkRobot, SenderMessageVk
 
 
 @benchmark
-def start_vk_sender(token: str, message: str, all_groups_id: tuple):
+def start_vk_sender():
     """Sending messages in vk groups"""
 
     logger.info(f"{'#' * 15}  Start program {'#' * 15}")
-    robot = VkRobot(token, message)
+    # robot_one = VkRobot(token=data.token,
+    #                     message=data.message['timoshka'] + data.hashtags['cats_girl_hashtags'],
+    #                     groups_id=data.all_animals_groups_id,
+    #                     photo=['photo202903451_457247845, photo202903451_457247850'],
+    #                     name='robot_one')
+
+    robot_two = VkRobot(token=data.token,
+                        message=data.message['masha'] + data.hashtags['dog_hashtags'],
+                        groups_id=data.all_dogs_id,
+                        photo=['photo202903451_457247853, photo202903451_457247854, photo202903451_457247855'],
+                        name='robot_two')
+
     logger.info('Prepare group_id for posting...')
 
-    count_successful = 0
-    logger.info(f"Download {len(all_groups_id)} groups")
+    # logger.info(f"Download {len(robot_one.groups_id)} groups for robot {robot_one.name}")
+    logger.info(f"Download {len(robot_two.groups_id)} groups for robot {robot_two.name}")
 
-    for key, group_id in enumerate(all_groups_id):
-        result = robot.post_message_group(group_id['group_id'], message,
-                                          ['photo202903451_457247845, photo202903451_457247850'])
+    # first = SenderMessageVk(robot_one, len(robot_one.groups_id))
+    second = SenderMessageVk(robot_two, len(robot_two.groups_id))
+    # first_robot = iter(first)
+    second_robot = iter(second)
 
-        if 'error' not in result.keys():
-            count_successful += 1
-            logger.info(f"#{key + 1} Record sent in group: {group_id['url']}")
-            if key + 1 != len(all_groups_id):
-                time.sleep(random.randint(65, 90))
-        else:
-            logger.warning(f"#{key + 1} Record don't sent in group: {group_id['url']}"
-                           f" reason: {result['error']['error_msg']}")
+    while True:
+        # result_one, count_successful_one = next(first_robot)
+        result_two, count_successful_two = next(second_robot)
 
-    logger.info(f"{'#' * 15} Finish, sent {count_successful} records from {len(all_groups_id)} {'#' * 15}")
+        if result_two is None: #and result_one
+            break
+
+    # logger.info(f"{'#' * 15} Finish, sent {count_successful_one} records from {len(robot_one.groups_id)} {'#' * 15}")
+    logger.info(f"{'#' * 15} Finish, sent {count_successful_two} records from {len(robot_two.groups_id)} {'#' * 15}")
 
 
 if __name__ == "__main__":
-    start_vk_sender(data.token, data.message, data.all_animals_groups_id)
+    start_vk_sender()

@@ -5,18 +5,22 @@ from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
-from groups_links import all_animals_groups, all_animals_groups_id
+from groups_links import all_animals_groups, all_animals_groups_id, all_dogs_groups, all_dogs_id, message
 from logger_settings import logger
 
 
 @dataclass
 class Data:
     token: str
-    message: str
-    all_animals_groups: list
+    token_two: str
     login_instagram: str
     password_instagram: str
+    message: dict
+    all_animals_groups: list
     all_animals_groups_id: tuple
+    all_dogs_groups: list
+    all_dogs_id: list
+    hashtags: dict
 
 
 def benchmark(func):
@@ -48,12 +52,28 @@ def get_time_work(sec: int):
 
 load_dotenv()
 token = os.getenv("TOKEN")
+token_two = os.getenv("TOKEN_2")
 
-message = os.getenv('MESSAGE')
-
-all_animals_groups = all_animals_groups
 login_instagram = os.getenv("LOGIN_INSTAGRAM")
 password_instagram = os.getenv("PASSWORD_INSTAGRAM")
+
+message = message
+
+all_animals_groups = all_animals_groups
 all_animals_groups_id = all_animals_groups_id
 
-data = Data(token, message, all_animals_groups, login_instagram, password_instagram, all_animals_groups_id)
+all_dogs_groups = all_dogs_groups
+all_dogs_id = all_dogs_id
+
+hashtags = {
+    'cats_girl_hashtags': ' #кошкавдар #кошкавдарминск #кошкабесплатно #вдобрыеруки #непокупай #ищухозяина #ищудом',
+    'cats_man_hashtags': ' #котвдар #котвдарминск #котбесплатно #вдобрыеруки #непокупай #ищухозяина #ищудом',
+    'small_cats_hashtags': ' #котятавдар #котятавдарминск #котятабесплатно #вдобрыеруки #непокупай #ищухозяина #ищудом',
+    'small_cat_hashtags': ' #котеноквдар #котеноквдарминск #котенокбесплатно #вдобрыеруки #непокупай #ищухозяина #ищудом',
+    'dog_hashtags': ' #собакавдар #собакавдарминск #собакабесплатно #вдобрыеруки #непокупай #ищухозяина #ищудом',
+    'small_dogs_hashtags': ' #щенкивдар #щенкивдарминск #щенкибесплатно #вдобрыеруки #непокупай #ищухозяина #ищудом',
+}
+
+
+data = Data(token, token_two, login_instagram, password_instagram, message, all_animals_groups, all_animals_groups_id,
+            all_dogs_groups, all_dogs_id, hashtags)

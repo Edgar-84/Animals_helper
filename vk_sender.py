@@ -1,26 +1,69 @@
 import glob
 import json
-
+import time
 from datetime import datetime, date
 import requests
 import vk_api
-
+import random
 from logger_settings import logger
 from settings import data
 from pprint import pprint
+
+
+class SenderMessageVk:
+    """Iterator for send message in Vk, using objeckt VkRobot"""
+
+    def __init__(self, robot: object, count: int):
+        self.robot = robot
+        self.count = count
+        self.successful = 0
+
+    def __iter__(self):
+        self.number = 0
+        return self
+
+    def __next__(self):
+        if self.number < self.count:
+            try:
+                result = self.robot.post_message_group(text=self.robot.message,
+                                                       group_id=self.robot.groups_id[self.number]['group_id'],
+                                                       photos_list=self.robot.photo)
+
+                if 'error' not in result.keys():
+                    self.successful += 1
+                    result = f"#{self.number + 1} Record sent robot -> {self.robot.name} in group:" \
+                             f"{self.robot.groups_id[self.number]['url']}"
+                    logger.info(result)
+                    if self.number != self.count:
+                        time.sleep(random.randrange(60, 70))
+                else:
+                    result = f"#{self.number + 1} Record don't sent robot -> {self.robot.name} in group:" \
+                             f"{self.robot.groups_id[self.number]['url']}, reason: {result['error']['error_msg']}"
+                    logger.warning(result)
+                self.number += 1
+
+            except Exception as e:
+                result = None
+            return result, self.successful
+
+        else:
+            return None, self.successful
 
 
 class VkRobot:
     """Work with this class for authorization in VkApi and
     create client for sending messages in groups with image"""
 
-    def __init__(self, token: str, message: str = None):
+    def __init__(self, token: str, message: str = None, groups_id: list = None, photo: list = None, name: str = 'robot'):
 
         self.__token = token
         self.session = vk_api.VkApi(token=token)
         self.api = self.session.get_api()
         self.uploader = vk_api.VkUpload(self.session)
         self.message = message
+        self.groups_id = groups_id
+        self.photo = photo
+        self.name = name
 
     def get_url_photo_download(self, group_id: str) -> str:
         """Get url for download photo"""
