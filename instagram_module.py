@@ -3,9 +3,8 @@ from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
+from logger_settings import logger
 from settings import data
 import time
 import random
@@ -17,6 +16,9 @@ class InstagramBot:
         self.__password = password
         path_driver = Service(path_chrome_driver)
         options = webdriver.ChromeOptions()
+        options.headless = True
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36")
         self.browser = webdriver.Chrome(service=path_driver, options=options)
         self.wrong_user_page = '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/section/main/div/div/div/h2'
         self.like_button = '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/section/main/div[1]/div[1]/\n' \
@@ -37,17 +39,17 @@ class InstagramBot:
             login_input.clear()
             login_input.send_keys(self.__username)
 
-            time.sleep(3)
+            time.sleep(random.randrange(3, 5))
 
             password_input = browser.find_element(By.NAME, 'password')
             password_input.clear()
             password_input.send_keys(self.__password)
 
             password_input.send_keys(Keys.ENTER)
-            time.sleep(10)
+            time.sleep(random.randrange(3, 5))
 
         except Exception as ex:
-            print(f"Authorization failed with this mistake: {ex}")
+            logger.warning(f"Authorization failed with this mistake: {ex}")
             self.close_browser()
 
     def like_photo_by_hashtag(self, hashtag: str, number_posts: int, scroll_number: int = 5):
@@ -75,11 +77,11 @@ class InstagramBot:
                     browser.find_element(By.XPATH, self.like_button).click()
                     time.sleep(random.randrange(80, 95))
                 except Exception as ex:
-                    print(f"Like don't sent, mistake in like_photo_by_hashtag method: {ex}")
+                    logger.warning(f"Like don't sent, mistake in like_photo_by_hashtag method: {ex}")
                     continue
 
         except Exception as ex:
-            print(f"Mistake in like_photo_by_hashtag method: {ex}")
+            logger.warning(f"Mistake in like_photo_by_hashtag method: {ex}")
             self.close_browser()
 
     def xpath_checker(self, xpath_url: str) -> bool:
@@ -102,16 +104,16 @@ class InstagramBot:
 
         wrong_user_page = self.wrong_user_page
         if self.xpath_checker(wrong_user_page):
-            print('Mistake url, in method "put_like_from_url"')
+            logger.info('Mistake url, in method "put_like_from_url"')
 
         else:
-            print('Start liking')
+            logger.info('Start liking')
             time.sleep(2)
 
             browser.find_element(By.XPATH, self.like_button).click()
             time.sleep(5)
 
-            print(f'Like on post {post_url} sent')
+            logger.info(f'Like on post {post_url} sent')
             self.close_browser()
 
     def put_many_likes_for_person(self, user_url: str):
@@ -123,10 +125,10 @@ class InstagramBot:
 
         wrong_user_page = self.wrong_user_page
         if self.xpath_checker(wrong_user_page):
-            print('Not valid user_url, in method put_many_likes_for_person')
+            logger.info('Not valid user_url, in method put_many_likes_for_person')
             self.close_browser()
         else:
-            print(f'Find profile {user_url}, ready send likes')
+            logger.info(f'Find profile {user_url}, ready send likes')
             time.sleep(2)
 
             posts_count = int(browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]\n'
@@ -143,7 +145,7 @@ class InstagramBot:
 
                 browser.execute_script('window.scrollTo(0, document.body.scrollHeight);')
                 time.sleep(random.randrange(3, 5))
-                print(f"Iteration {i + 1}")
+                logger.info(f"Iteration {i + 1}")
 
             set_posts_url = set(posts_urls)
             unique_posts_url = list(set_posts_url)
@@ -165,49 +167,81 @@ class InstagramBot:
                         time.sleep(random.randrange(80, 95))
 
                 except Exception as ex:
-                    print(f"Mistake in method 'put_many_likes_for_person' during liking posts: {ex}")
+                    logger.warning(f"Mistake in method 'put_many_likes_for_person' during liking posts: {ex}")
                     self.browser.close()
 
             self.close_browser()
 
-    def send_message(self, username: str, message: str):
+    def send_message(self, user_list: list, message: str, image_path: str = None):
+        try:
+            browser = self.browser
+            time.sleep(random.randrange(2, 4))
+            close_notifications = '/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/button[2]'
+            browser.get('https://www.instagram.com/direct/inbox/')
 
-        browser = self.browser
-        time.sleep(random.randrange(2, 4))
-        close_notifications = '/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/button[2]'
-        browser.get('https://www.instagram.com/direct/inbox/')
-
-        if self.xpath_checker(close_notifications):
-            browser.find_element(By.XPATH, close_notifications).click()
-            print('Close notifications mistake')
-
-        direct_button = '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/div/div[2]/div/div/div[2]/div/div[3]/div/button'
-        WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, direct_button)))
-        message_send = browser.find_element(By.XPATH, direct_button).click()
-        print('Send message...')
-        time.sleep(random.randrange(2, 4))
-        find_user = browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/input')
-        find_user.send_keys(username)
-        time.sleep(random.randrange(2, 5))
-
-        user_list = browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div[2]').find_element(By.TAG_NAME, 'button').click()
-        time.sleep(random.randrange(2, 5))
-
-        next_button = browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[1]/div/div[3]/div/button').click()
-        time.sleep(random.randrange(2, 5))
-
-        text_area = browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea')
-        text_area.clear()
-        text_area.send_keys(message)
-        time.sleep(random.randrange(2, 5))
-        text_area.send_keys(Keys.ENTER)
-        print(f"Сообщение для {username} успешно отправлено!")
-
-        time.sleep(5)
-        self.close_browser()
+            logger.info(f'Download {len(user_list)} groups for sending!')
+            for user in user_list:
+                try:
+                    if self.xpath_checker(close_notifications):
+                        browser.find_element(By.XPATH, close_notifications).click()
+                        logger.info('Close notifications mistake')
 
 
-insta_bot = InstagramBot(data.login_instagram, data.password_instagram)
-insta_bot.login()
-insta_bot.send_message('teztour_by', 'Hello')
+                    direct_button = '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/div/div[2]/div/div/div[1]/div[1]/div/div[3]/button'
+                    message_send = browser.find_element(By.XPATH, direct_button).click()
+                    logger.info(f'Send message for {user}...')
+                    time.sleep(random.randrange(2, 4))
+
+
+                    find_user = browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/input')
+                    find_user.send_keys(user)
+                    time.sleep(random.randrange(2, 5))
+
+                    user_list = browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div[2]').find_element(By.TAG_NAME, 'button').click()
+                    time.sleep(random.randrange(2, 5))
+
+                    next_button = browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[1]/div/div[3]/div/button').click()
+                    time.sleep(random.randrange(2, 5))
+
+                    if message:
+                        text_area = browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea')
+                        text_area.clear()
+                        text_area.send_keys(message)
+
+                        text_area.send_keys(Keys.ENTER)
+                        logger.info(f"Сообщение для {user} успешно отправлено!")
+                        time.sleep(random.randrange(5, 10))
+
+                    if image_path:
+                        send_image_button = browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/form/input')
+                        send_image_button.send_keys(image_path)
+                        logger.info(f'Image for {user} successfully sent!')
+                        time.sleep(random.randrange(10, 20))
+
+                    time.sleep(random.randrange(480, 600))
+                except Exception as e:
+                    logger.warning(f"Catch mistake in sending user_list: {e}")
+                    continue
+        except Exception as e:
+            logger.warning(f'Mistake during sending message -> {e}')
+        finally:
+            self.close_browser()
+
+
+def run_instagram():
+
+    logger.info(f"{'#' * 15}  Start program {'#' * 15}")
+    logger.info('Authorization...')
+    insta_bot = InstagramBot(data.login_instagram, data.password_instagram)
+    insta_bot.login()
+    logger.info('Login successful')
+    insta_bot.send_message(user_list=data.dogs_instagram_groups[4:],
+                           message=data.message['masha'],
+                           image_path='/home/edgar/PycharmProjects/Animal_helper/images/mari_1.jpg')
+
+    logger.info(f"{'#' * 15}  Finish program {'#' * 15}")
+
+
+if __name__ == "__main__":
+    run_instagram()
 

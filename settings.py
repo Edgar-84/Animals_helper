@@ -5,7 +5,8 @@ from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
-from groups_links import all_animals_groups, all_animals_groups_id, all_dogs_groups, all_dogs_id, message
+from groups_links import all_animals_groups, all_animals_groups_id, all_dogs_groups, all_dogs_id, message,\
+        dogs_instagram_groups, cats_instagram_groups
 from logger_settings import logger
 
 
@@ -21,6 +22,8 @@ class Data:
     all_dogs_groups: list
     all_dogs_id: list
     hashtags: dict
+    dogs_instagram_groups: list
+    cats_instagram_groups: list
 
 
 def benchmark(func):
@@ -74,6 +77,8 @@ hashtags = {
     'small_dogs_hashtags': ' #щенкивдар #щенкивдарминск #щенкибесплатно #вдобрыеруки #непокупай #ищухозяина #ищудом',
 }
 
+dogs_instagram_groups = dogs_instagram_groups
+cats_instagram_groups = cats_instagram_groups
 
 data = Data(token, token_two, login_instagram, password_instagram, message, all_animals_groups, all_animals_groups_id,
-            all_dogs_groups, all_dogs_id, hashtags)
+            all_dogs_groups, all_dogs_id, hashtags, dogs_instagram_groups, cats_instagram_groups)
