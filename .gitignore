@@ -43,6 +43,8 @@ doc-dev
 db.sqlite3
 
 *.jpg
+*.JPG
+*.PNG
 *.png
 *.log
 groups_links.py
